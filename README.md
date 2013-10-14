@@ -6,12 +6,10 @@ Andriller performs read-only, forensically sound, non-destructive acquisition fr
 Usage:
 
 Connect an Android device by a USB cable, have USB Debugging enabled; execute Andriller:
-
-for Linux OS:
 $ ./Andriller.py
 
 for Windows (must have Python 3.x installed):
-python Andriller.exe
+python Andriller.py
 Andriller should run, download any data, and decode it all at once. Content download is supported for rooted devices only.
 
 Note: Android version 4.2.2+ requires to authorise the PC to accept RSA fingerprint. Please do so, and tick the box to remember for future. 
