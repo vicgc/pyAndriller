@@ -1,17 +1,17 @@
 pyAndriller
 ===========
 
-Andriller is a multi-platform forensic tool, that performs read-only, forensically sound, non-destructive acquisition from (rooted) Android devices. The executable is run from a terminal or by executing directly; it produces results in the terminal window, and a report in a HTML format.
+Andriller performs read-only, forensically sound, non-destructive acquisition from (rooted) Android devices. The executable is run from a terminal or by executing directly; it produces results in the terminal window, and a report in a HTML format.
 
 Usage:
 
 Connect an Android device by a USB cable, have USB Debugging enabled; execute Andriller:
 
 for Linux OS:
-$ ./Andriller
+$ ./Andriller.py
 
-for Windows:
-Andriller.exe
+for Windows (must have Python 3.x installed):
+python Andriller.exe
 Andriller should run, download any data, and decode it all at once. Content download is supported for rooted devices only.
 
 Note: Android version 4.2.2+ requires to authorise the PC to accept RSA fingerprint. Please do so, and tick the box to remember for future. 
@@ -33,7 +33,6 @@ Andriller comes with absolutely no warranty. Even though Andriller was written i
 
 Troubleshooting:
 
-Choose between Andriller version Linux 32-bit or Linux 64-bit or MS Windows.
 For andriller to work, you may need the following packages to be installed (if not already installed): adb. You can install them manually.
 
 For Ubuntu (depending on distribution, must enable 'universe' in software sources first, and/or add this PPA for latest adb version):
