@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Andriller.py - Forensic acquisition tool for Androids.
 # Website, Usage and Disclaimer: http://android.saz.lt
@@ -349,10 +350,7 @@ if 'contacts2.db' in DLLS:
 		c2_data = c.fetchall()
 		con.close()
 		if c2_data != '':
-			try:
-				fileh = open(OUTPUT+'contacts.html', 'w', encoding='UTF-8')
-			except:
-				fileh = open(OUTPUT+'contacts.html', 'w')
+			fileh = open(OUTPUT+'contacts.html', 'w', encoding='UTF-8')
 			fileh.write('<!DOCTYPE html><html><head>\n<title>%s Andriller Report for %s</title>\n<style>body,td,tr {font-family: Vernada, Arial, sans-serif; font-size: 12px;}</style></head>\n<body>\n<a href="REPORT.html">[Back]</a>\n<p align="center"><i># This report was generated using Andriller on %s #</i></p>\n<h3 align="center">[%s] %s</h3>\n<table border="1" cellpadding="2" cellspacing="0" align="center">\n<tr bgcolor="#72A0C1"><th nowrap>#</th><th nowrap>Name</th><th nowrap>Number</th><th nowrap>Email</th><th>Other</th></tr>' % (str(rep_title), str(IMEI), str(LOCAL_TIME), str(rep_title), str(IMEI)))
 			pbook = []; tD = {}
 			for c2_item in c2_data:
@@ -409,10 +407,7 @@ if 'contacts2.db' in DLLS:
 		c2_data = c.fetchall()
 		con.close()
 		if c2_data != []:
-			try:
-				fileh = open(OUTPUT+'call_logs.html', 'w', encoding='UTF-8')
-			except:
-				fileh = open(OUTPUT+'call_logs.html', 'w')
+			fileh = open(OUTPUT+'call_logs.html', 'w', encoding='UTF-8')
 			fileh.write('<!DOCTYPE html><html><head>\n<title>%s Andriller Report for %s</title>\n<style>body,td,tr {font-family: Vernada, Arial, sans-serif; font-size: 12px;}</style></head>\n<body>\n<a href="REPORT.html">[Back]</a>\n<p align="center"><i># This report was generated using Andriller on %s #</i></p>\n<h3 align="center">[%s] %s</h3>\n<table border="1" cellpadding="2" cellspacing="0" align="center">\n<tr bgcolor="#72A0C1"><th>#</th><th>Type</th><th>Number</th><th>Name</th><th>Time</th><th>Duration</th></tr>' % (str(rep_title), str(IMEI), str(LOCAL_TIME), str(rep_title), str(IMEI)))
 			for c2_item in c2_data:
 				c2_id = str(c2_item[0])		# id
@@ -452,10 +447,7 @@ if 'logs.db' in DLLS:
 		c.execute("SELECT _id,type,number,name,date,duration FROM logs WHERE logtype='100' ORDER by date DESC")
 		sec_data = c.fetchall()
 		con.close()
-		try:
-			fileh = open(OUTPUT+'sec_call_logs.html', 'w', encoding='UTF-8')
-		except:
-			fileh = open(OUTPUT+'sec_call_logs.html', 'w')
+		fileh = open(OUTPUT+'sec_call_logs.html', 'w', encoding='UTF-8')
 		fileh.write('<!DOCTYPE html><html><head>\n<title>%s Andriller Report for %s</title>\n<style>body,td,tr {font-family: Vernada, Arial, sans-serif; font-size: 12px;}</style></head>\n<body>\n<a href="REPORT.html">[Back]</a>\n<p align="center"><i># This report was generated using Andriller on %s #</i></p>\n<h3 align="center">[%s] %s</h3>\n<table border="1" cellpadding="2" cellspacing="0" align="center">\n<tr bgcolor="#72A0C1"><th>#</th><th>Type</th><th>Number</th><th>Name</th><th>Time</th><th>Duration</th></tr>' % (str(rep_title), str(IMEI), str(LOCAL_TIME), str(rep_title), str(IMEI)))
 		for sec_item in sec_data:
 			sec_id = str(sec_item[0])		# id
@@ -494,10 +486,7 @@ if 'mmssms.db' in DLLS:
 		c.execute("SELECT address,body,date,type,_id FROM sms ORDER by sms.date DESC")
 		sms_data = c.fetchall()
 		con.close()
-		try:
-			fileh = open(OUTPUT+'mmssms.html', 'w', encoding='UTF-8')
-		except:
-			fileh = open(OUTPUT+'mmssms.html', 'w')
+		fileh = open(OUTPUT+'mmssms.html', 'w', encoding='UTF-8')
 		fileh.write('<!DOCTYPE html><html><head>\n<title>%s Andriller Report for %s</title>\n<style>body,td,tr {font-family: Vernada, Arial, sans-serif; font-size: 12px;}</style></head>\n<body>\n<a href="REPORT.html">[Back]</a>\n<p align="center"><i># This report was generated using Andriller on %s #</i></p>\n<h3 align="center">[%s] %s</h3>\n<table border=1 cellpadding=2 cellspacing=0 align=center>\n<tr bgcolor=#72A0C1><th>#</th><th>Number</th><th width="500">Message</th><th>Type</th><th nowrap>Time</th></tr>\n' % (str(rep_title), str(IMEI), str(LOCAL_TIME), str(rep_title), str(IMEI)))
 		for sms_item in sms_data:
 			sms_number = str(sms_item[0])
@@ -535,10 +524,7 @@ if 'threads_db2' in DLLS:
 		fbt_users = c.fetchall()
 		con.close()
 		if fbt_data != '':
-			try:
-				fileh = open(OUTPUT+SEP+'fb_messages.html', 'w', encoding='UTF-8')
-			except:
-				fileh = open(OUTPUT+SEP+'fb_messages.html', 'w')
+			fileh = open(OUTPUT+SEP+'fb_messages.html', 'w', encoding='UTF-8')
 			fileh.write('<!DOCTYPE html><html><head>\n<title>%s Andriller Report for %s</title>\n<style>body,td,tr {font-family: Vernada, Arial, sans-serif; font-size: 12px;}</style></head>\n<body>\n<a href="REPORT.html">[Back]</a>\n<p align="center"><i># This report was generated using Andriller on %s #</i></p>\n<h3 align="center">[%s] %s</h3>\n<table border="1" cellpadding="2" cellspacing="0" align="center">\n<tr bgcolor="#72A0C1"><th nowrap>Sender</th><th nowrap>Image</th><th width="500">Message</th><th nowrap>Recipient(s)</th><th>Time</th></tr>' % (str(rep_title), str(IMEI), str(LOCAL_TIME), str(rep_title), str(IMEI)))
 			for fbt_item in fbt_data:
 				if fbt_item[0] != None:
@@ -577,10 +563,7 @@ if 'fb.db' in DLLS:
 		fbp_data = c.fetchall()
 		if len(fbp_data) > 0:
 			os.mkdir(OUTPUT+'fb_media'); os.mkdir(OUTPUT+'fb_media'+SEP+'Thumbs')
-			try:
-				fileh = open(OUTPUT+'fb_photos.html', 'w', encoding='UTF-8')
-			except:
-				fileh = open(OUTPUT+'fb_photos.html', 'w')
+			fileh = open(OUTPUT+'fb_photos.html', 'w', encoding='UTF-8')
 			fileh.write('<!DOCTYPE html><html><head>\n<title>%s Andriller Report for %s</title>\n<style>body,td,tr {font-family: Vernada, Arial, sans-serif; font-size: 12px;}</style></head>\n<body>\n<a href="REPORT.html">[Back]</a>\n<p align="center"><i># This report was generated using Andriller on %s #</i></p>\n<h3 align="center">[%s] %s</h3>\n<table border="1" cellpadding="2" cellspacing="0" align="center">\n<tr bgcolor="#72A0C1"><th>#</th><th>Picture</th><th>Owner</th><th width="500">Caption</th><th nowrap>Date (uploaded)</th></tr>' % (str(rep_title), str(IMEI), str(LOCAL_TIME), str(rep_title), str(IMEI)))
 			for fbp_item in fbp_data:
 				fbp_id = fbp_item[0]
@@ -615,10 +598,7 @@ if 'wa.db' in DLLS:
 		c.execute("select display_name,number,status from wa_contacts where is_whatsapp_user='1'")
 		wa_data = c.fetchall()
 		con.close()
-		try:
-			fileh = open(OUTPUT+'wa_contacts.html', 'w', encoding='UTF-8')
-		except:
-			fileh = open(OUTPUT+'wa_contacts.html', 'w')
+		fileh = open(OUTPUT+'wa_contacts.html', 'w', encoding='UTF-8')
 		fileh.write('<!DOCTYPE html><html><head>\n<title>%s Andriller Report for %s</title>\n<style>body,td,tr {font-family: Vernada, Arial, sans-serif; font-size: 12px;}</style></head>\n<body>\n<a href="REPORT.html">[Back]</a>\n<p align="center"><i># This report was generated using Andriller on %s #</i></p>\n<h3 align="center">[%s] %s</h3>\n<table border="1" cellpadding="2" cellspacing="0" align="center">\n<tr bgcolor="#72A0C1"><th>Name</th><th>Number</th><th>Status</th></tr>' % (str(rep_title), str(IMEI), str(LOCAL_TIME), str(rep_title), str(IMEI)))
 		for wa_item in wa_data:
 			wa_name = wa_item[0]
@@ -644,10 +624,7 @@ if 'msgstore.db' in DLLS:
 		c.execute("SELECT _id, key_remote_jid, data, timestamp, key_from_me, media_size, media_mime_type, media_name, raw_data, latitude, longitude FROM messages WHERE NOT status='-1' ORDER BY timestamp DESC")
 		wam_data = c.fetchall()
 		con.close()
-		try:
-			fileh = open(OUTPUT+'wa_messages.html', 'w', encoding='UTF-8')
-		except:
-			fileh = open(OUTPUT+'wa_messages.html', 'w')
+		fileh = open(OUTPUT+'wa_messages.html', 'w', encoding='UTF-8')
 		fileh.write('<!DOCTYPE html><html><head>\n<title>%s Andriller Report for %s</title>\n<style>body,td,tr {font-family: Vernada, Arial, sans-serif; font-size: 12px;}</style></head>\n<body>\n<a href="REPORT.html">[Back]</a>\n<p align="center"><i># This report was generated using Andriller on %s #</i></p>\n<h3 align="center">[%s] %s</h3>\n<table border="1" cellpadding="2" cellspacing="0" align="center">\n<tr bgcolor="#72A0C1"><th>#</th><th>Number</th><th width="500">Message</th><th nowrap>Time</th><th>Type</th></tr>' % (str(rep_title), str(IMEI), str(LOCAL_TIME), str(rep_title), str(IMEI)))
 		for wam_item in wam_data:
 			wam_id = wam_item[0]
@@ -687,10 +664,7 @@ if 'msgstore.db' in DLLS:
 #
 print(">>>>>>>>>> Generating report:")
 
-try:
-	file_handle = open(OUTPUT+SEP+'REPORT.html', 'w', encoding='UTF-8')
-except:
-	file_handle = open(OUTPUT+SEP+'REPORT.html', 'w')
+file_handle = open(OUTPUT+SEP+'REPORT.html', 'w', encoding='UTF-8')
 
 report_t = '<!DOCTYPE html><html><head>\n<title>Andriller Report for %s</title>\n<style>body,td,tr {font-family: Vernada, Arial, sans-serif; font-size: 12px;}</style></head><body>\n<p align="center"><i># This report was generated using Andriller version %s on %s #</i></p><h3 align="center">[Andriller Report] %s %s | %s</h3>\n<table border="1" cellpadding=2 cellspacing="0" align="center">\n<tr bgcolor="#72A0C1"><th>Type</th><th>Data</th></tr>\n' % (str(IMEI), PANDRILLER_VERSION, str(LOCAL_TIME), DEVICE_MANUF, str(DEVICE_MODEL), str(IMEI))
 
