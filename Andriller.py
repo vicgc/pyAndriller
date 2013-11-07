@@ -1,31 +1,31 @@
 #!/usr/bin/env python3
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# Andriller.py - Forensic acquisition tool for Androids.
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# Andriller.py - Forensic acquisition tool for Android devices.
 # Website, Usage and Disclaimer: http://android.saz.lt
 # Copyright (C) 2013  Denis Sazonov
 #
-# This program is free software: you can redistribute it and/or 
-# modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundation, either version 3 of
-# the License, or (at your option) any later version.
+# This program is free software: you can redistribute it and/or modify 
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or 
+# (at your option) any later version.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# This program is distributed in the hope that it will be useful, but 
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+# General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 import sys
 import os
 import time
 import re
 import hashlib
-import ast
 import sqlite3 as sq
+from json import loads
 from binascii import hexlify
 from datetime import datetime
 from datetime import timedelta
@@ -33,13 +33,13 @@ from subprocess import check_output as co
 from subprocess import call
 
 # Setting variables
-PANDRILLER_VERSION = "alpha-1.0.0"
-PA_BUILD_DATE = "03/10/2013"
+ANDRILLER_VERSION = "alpha-1.1.0"
+A_BUILD_DATE = "07/11/2013"
 
 # Intro info
-print(">>>>>>>>>> Andriller version: %s" % PANDRILLER_VERSION)
-print(">>>>>>>>>> Build date: %s" % PA_BUILD_DATE)
-print(">>>>>>>>>> http://android.saz.lt")
+print("\033[93m>>>>>>>>>> Andriller version: %s\033[0m" % ANDRILLER_VERSION)
+print("\033[93m>>>>>>>>>> Build date: %s\033[0m" % A_BUILD_DATE)
+print("\033[93m>>>>>>>>>> http://android.saz.lt\033[0m")
 
 REPORT = []		# List to be populated for generating the REPORT.html file
 
@@ -75,11 +75,11 @@ except NameError:
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Unrooted (shell) devices, to print device information, limited extractions 
 #
-print(">>>>>>>>>> General Device Information.")
+print("\033[94m>>>>>>>>>> General Device Information.\033[0m")
 
 # Check for connected Android device
 if 'unknown' in co([ADB, 'get-state']).decode('UTF-8'):
-	sys.exit(" No Android device found!")
+	sys.exit("\033[91m No Android device found!\033[0m")
 else:
 	ADB_SER = co([ADB, 'get-serialno']).decode('UTF-8').replace('\n', '').replace('\r', '')
 	print(" ADB serial: " + ADB_SER); REPORT.append(["ADB serial", ADB_SER])
@@ -97,7 +97,7 @@ else:
 try:
 	print(" Shell permissions: " + PERM); REPORT.append(["Shell permissions", PERM])
 except NameError:
-	sys.exit(" Android permission cannot be established!")
+	sys.exit("\033[91m Android permission cannot be established!\033[0m")
 
 BUILDPROP = co([ADB, 'shell', 'cat', '/system/build.prop']).decode('UTF-8')
 
@@ -203,7 +203,7 @@ for acc in all_acc:
 	acc = acc0[1]+": "+acc0[0]
 	ACCOUNTS.append(acc)
 if ACCOUNTS != '':
-	print(">>>>>>>>>> Sync'ed Accounts.")
+	print("\033[94m>>>>>>>>>> Sync'ed Accounts.\033[0m")
 	for account in ACCOUNTS:
 		print(account)
 	REPORT.append(["Accounts", ACCOUNTS])
@@ -223,10 +223,10 @@ except:
 #
 if 'root' in QPERM:
 	SUC = ''
-	print(">>>>>>>>>> Downloading databases...")
+	print("\033[94m>>>>>>>>>> Downloading databases...\033[0m")
 elif 'root' in QPERMSU:
 	SUC = 'su -c'
-	print(">>>>>>>>>> Downloading databases...")
+	print("\033[94m>>>>>>>>>> Downloading databases...\033[0m")
 #
 # DATABASE EXTRACTION
 #
@@ -240,8 +240,10 @@ DBLS = [
 '/data/data/com.facebook.katana/databases/fb.db',
 '/data/data/com.facebook.katana/databases/contacts_db2',
 '/data/data/com.facebook.katana/databases/threads_db2',
+'/data/data/com.facebook.katana/databases/photos_db',
 '/data/data/com.whatsapp/databases/wa.db',
 '/data/data/com.whatsapp/databases/msgstore.db',
+'/data/data/kik.android/databases/kikDatabase.db',
 '/data/system/gesture.key',
 '/data/system/cm_gesture.key',
 '/data/system/locksettings.db',
@@ -274,15 +276,12 @@ if 'root' in PERM:
 	for db in DBLS:
 		download_database(db)
 
-# # # # # 
-
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# DECODING DOWNLOADED DATABASES
-#
-if DLLS != []:
-	print(">>>>>>>>>> Decoding data...")
+# DECODING DEFINITIONS FOR DATABASES
+# 
+
 # Decode gesture.key  # # # # # # # # # # # # # # # # # # # # #
-if 'gesture.key' in DLLS:
+def decode_gesturekey():
 	fileh = open(OUTPUT+SEP+'db'+SEP+'gesture.key', 'rb')
 	ges_data = fileh.read()
 	if len(ges_data) == 20:
@@ -303,7 +302,7 @@ def decode_pwkey(pwkey, pwsalt):
 # # # # #
 
 # Decode settings.db  # # # # # # # # # # # # # # # # # # # # #
-if 'settings.db' in DLLS:
+def decode_settingsdb():
 	con = sq.connect(OUTPUT+SEP+'db'+SEP+'settings.db')
 	c = con.cursor()
 	c.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='secure'")
@@ -339,7 +338,7 @@ if 'settings.db' in DLLS:
 # # # # # 
 
 # Decode contacts2.db (Pbook) # # # # # # # # # # # # # # # # #
-if 'contacts2.db' in DLLS:
+def decode_contacts2db():
 	rep_title = 'Contacts'
 	con = sq.connect(OUTPUT+SEP+'db'+SEP+'contacts2.db')
 	c = con.cursor()
@@ -397,7 +396,7 @@ if 'contacts2.db' in DLLS:
 # # # # #
 
 # Decode contacts2.db (Calls) # # # # # # # # # # # # # # # # #
-if 'contacts2.db' in DLLS:
+def decode_calls_contacts2db():
 	rep_title = 'Call logs'
 	con = sq.connect(OUTPUT+'db'+SEP+'contacts2.db')
 	c = con.cursor()
@@ -437,8 +436,7 @@ if 'contacts2.db' in DLLS:
 # # # # #
 
 # Decode logs.db (Samsung Calls(SEC)) # # # # # # # # # # # # # # # # #
-
-if 'logs.db' in DLLS:
+def decode_logsdb():
 	rep_title = 'Samsung Call logs'
 	con = sq.connect(OUTPUT+'db'+SEP+'logs.db')
 	c = con.cursor()
@@ -477,7 +475,7 @@ if 'logs.db' in DLLS:
 # # # # #
 
 # Decode mmssms.db  # # # # # # # # # # # # # # # # # # # # # #
-if 'mmssms.db' in DLLS:
+def decode_mmssmsdb():
 	rep_title = 'SMS Messages'
 	con = sq.connect(OUTPUT+'db'+SEP+'mmssms.db')
 	c = con.cursor()
@@ -512,7 +510,7 @@ if 'mmssms.db' in DLLS:
 # # # # # 
 
 # Decode threads_db2 # # # # # # # # # # # # # # # # # # #
-if 'threads_db2' in DLLS:
+def decode_threads_db2():
 	rep_title = 'Facebook: Messages'
 	con = sq.connect(OUTPUT+SEP+'db'+SEP+'threads_db2')
 	c = con.cursor()
@@ -520,7 +518,7 @@ if 'threads_db2' in DLLS:
 	if c.fetchone() != None:
 		c.execute("SELECT sender,threads.participants,text,messages.timestamp_ms FROM messages JOIN threads ON (messages.thread_id=threads.thread_id) WHERE NOT messages.timestamp_ms='0' ORDER BY messages.timestamp_ms DESC")
 		fbt_data = c.fetchall()
-		c.execute("SELECT user_key,name,pic_big,pic_square FROM thread_users")
+		c.execute("SELECT user_key,name,profile_pic_square FROM thread_users")
 		fbt_users = c.fetchall()
 		con.close()
 		if fbt_data != '':
@@ -528,18 +526,18 @@ if 'threads_db2' in DLLS:
 			fileh.write('<!DOCTYPE html><html><head>\n<title>%s Andriller Report for %s</title>\n<style>body,td,tr {font-family: Vernada, Arial, sans-serif; font-size: 12px;}</style></head>\n<body>\n<a href="REPORT.html">[Back]</a>\n<p align="center"><i># This report was generated using Andriller on %s #</i></p>\n<h3 align="center">[%s] %s</h3>\n<table border="1" cellpadding="2" cellspacing="0" align="center">\n<tr bgcolor="#72A0C1"><th nowrap>Sender</th><th nowrap>Image</th><th width="500">Message</th><th nowrap>Recipient(s)</th><th>Time</th></tr>' % (str(rep_title), str(IMEI), str(LOCAL_TIME), str(rep_title), str(IMEI)))
 			for fbt_item in fbt_data:
 				if fbt_item[0] != None:
-					fbt_sender_nm = ast.literal_eval(fbt_item[0]).get('name')
-					fbt_sender_id = ast.literal_eval(fbt_item[0]).get('user_key')
+					fbt_sender_nm = loads(fbt_item[0]).get('name')
+					fbt_sender_id = loads(fbt_item[0]).get('user_key')
 				else:
 					fbt_sender_nm = ''
 					fbt_sender_id = ''
 				for fbimgs in fbt_users:
 					if fbimgs[0] == fbt_sender_id:
-						fbt_img = fbimgs[3]
+						fbt_img = loads(fbimgs[2])[0].get('url')
 				fbt_text = fbt_item[2]
 				fbt_time = datetime.fromtimestamp(int(str(fbt_item[3])[:10])).strftime('%Y-%m-%d %H:%M:%S')
 				fbt_part = []
-				for fbtdic in ast.literal_eval(fbt_item[1]):
+				for fbtdic in loads(fbt_item[1]):
 					fbt_part.append(fbtdic.get('name')+' (ID:'+fbtdic.get('user_key').split(':')[1]+')')
 				try:
 					fbt_part.remove(fbt_sender_nm+' (ID:'+fbt_sender_id.split(':')[1]+')')
@@ -552,8 +550,44 @@ if 'threads_db2' in DLLS:
 			REPORT.append(['Applications data', '<a href="fb_messages.html">%s (%d)</a>' % (rep_title, len(fbt_data))])
 # # # # #
 
+# Decode photos_db # # # # # # # # # # # # # # # # # # # # # # #
+def decode_photos_db():
+	rep_title = 'Facebook: Viewed Photos'
+	con = sq.connect(OUTPUT+'db'+SEP+'photos_db')
+	c = con.cursor()
+	c.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='photos'")
+	if c.fetchone() != None:
+		c.execute("SELECT _id,owner,src_small,src_big,caption,created,thumbnail FROM photos ORDER BY _id DESC")
+		fbp_data = c.fetchall()
+		if len(fbp_data) > 0:
+			os.mkdir(OUTPUT+'fb_media'); os.mkdir(OUTPUT+'fb_media'+SEP+'Thumbs')
+			fileh = open(OUTPUT+'fb_photos2.html', 'w', encoding='UTF-8')
+			fileh.write('<!DOCTYPE html><html><head>\n<title>%s Andriller Report for %s</title>\n<style>body,td,tr {font-family: Vernada, Arial, sans-serif; font-size: 12px;}</style></head>\n<body>\n<a href="REPORT.html">[Back]</a>\n<p align="center"><i># This report was generated using Andriller on %s #</i></p>\n<h3 align="center">[%s] %s</h3>\n<table border="1" cellpadding="2" cellspacing="0" align="center">\n<tr bgcolor="#72A0C1"><th>#</th><th>Picture</th><th>Owner</th><th width="500">Caption</th><th nowrap>Date (uploaded)</th></tr>' % (str(rep_title), str(IMEI), str(LOCAL_TIME), str(rep_title), str(IMEI)))
+			for fbp_item in fbp_data:
+				fbp_id = fbp_item[0]
+				fbp_owner = str(fbp_item[1])
+				fbp_thm = fbp_item[2]
+				fbp_img = fbp_item[3]
+				if fbp_item[4] == None:
+					fbp_cap = ''
+				else:
+					fbp_cap = str(fbp_item[4])
+				fbp_date = datetime.fromtimestamp(int(str(fbp_item[5])[:10])).strftime('%Y-%m-%d %H:%M:%S')
+				if fbp_item[6] != None:
+					filewa = open(OUTPUT+'fb_media'+SEP+'Thumbs'+SEP+str(fbp_id)+'.jpg', 'wb')
+					filewa.write(fbp_item[6]); filewa.close()					
+					fbp_thumb = 'fb_media'+SEP+'Thumbs'+SEP+str(fbp_id)+'.jpg'
+				else:
+					fbp_thumb = fbp_item[2]
+				fileh.write('<tr><td>%s</td><td><a href="%s" target="_blank"><img src="%s"></a></td><td><a href="http://www.facebook.com/profile.php?id=%s" target="_blank">%s</a></td><td width="500">%s</td><td nowrap>%s</td></tr>\n' % (str(fbp_id), str(fbp_img), str(fbp_thm), str(fbp_owner), str(fbp_owner), fbp_cap, fbp_date))
+			fileh.write(REP_FOOTER)
+			fileh.close()
+			REPORT.append(['Applications data', '<a href="fb_photos2.html">%s (%d)</a>' % (rep_title, len(fbp_data))])
+
+# # # # #
+
 # Decode fb.db  # # # # # # # # # # # # # # # # # # # # # # # #
-if 'fb.db' in DLLS:
+def decode_fbdb():
 	rep_title = 'Facebook: Viewed Photos'
 	con = sq.connect(OUTPUT+'db'+SEP+'fb.db')
 	c = con.cursor()
@@ -576,9 +610,9 @@ if 'fb.db' in DLLS:
 					fbp_cap = str(fbp_item[4])
 				fbp_date = datetime.fromtimestamp(int(str(fbp_item[5])[:10])).strftime('%Y-%m-%d %H:%M:%S')
 				if fbp_item[6] != None:
-					filewa = open(OUTPUT+'fb_media'+SEP+'Thumbs'+SEP+str(fbp_id)+'.thm', 'wb')
+					filewa = open(OUTPUT+'fb_media'+SEP+'Thumbs'+SEP+str(fbp_id)+'.jpg', 'wb')
 					filewa.write(fbp_item[6]); filewa.close()					
-					fbp_thumb = 'fb_media'+SEP+'Thumbs'+SEP+str(fbp_id)+'.thm'
+					fbp_thumb = 'fb_media'+SEP+'Thumbs'+SEP+str(fbp_id)+'.jpg'
 				else:
 					fbp_thumb = fbp_item[2]
 				fileh.write('<tr><td>%s</td><td><a href="%s" target="_blank"><img src="%s"></a></td><td><a href="http://www.facebook.com/profile.php?id=%s" target="_blank">%s</a></td><td width="500">%s</td><td nowrap>%s</td></tr>\n' % (str(fbp_id), str(fbp_img), str(fbp_thm), str(fbp_owner), str(fbp_owner), fbp_cap, fbp_date))
@@ -589,7 +623,7 @@ if 'fb.db' in DLLS:
 # # # # # 
 
 # Decode wa.db  # # # # # # # # # # # # # # # # # # # # # # # #
-if 'wa.db' in DLLS:
+def decode_wadb():
 	rep_title = 'WhatsApp Contacts'
 	con = sq.connect(OUTPUT+'db'+SEP+'wa.db')
 	c = con.cursor()
@@ -613,7 +647,7 @@ if 'wa.db' in DLLS:
 # # # # # 
 
 # Decode msgstore.db  # # # # # # # # # # # # # # # # # # # # #
-if 'msgstore.db' in DLLS:
+def decode_msgstoredb():
 	rep_title = 'WhatsApp Messages'
 	con = sq.connect(OUTPUT+'db'+SEP+'msgstore.db')
 	c = con.cursor()
@@ -660,13 +694,46 @@ if 'msgstore.db' in DLLS:
 # # # # # 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# DECODING DOWNLOADED DATABASES
+#
+decoders = [
+(decode_gesturekey, 'gesture.key'),
+(decode_settingsdb, 'settings.db'),
+(decode_contacts2db, 'contacts2.db'),
+(decode_calls_contacts2db, 'contacts2.db'),
+(decode_logsdb, 'logs.db'),
+(decode_mmssmsdb, 'mmssms.db'),
+(decode_threads_db2, 'threads_db2'),
+(decode_photos_db, 'photos_db'),
+(decode_fbdb, 'fb.db'),
+(decode_wadb, 'wa.db'),
+(decode_msgstoredb, 'msgstore.db')
+]
+
+# Loop for decoding all DB's
+def DECODE_ALL(DLLS):
+	for dec in decoders:
+		if dec[1] in DLLS:
+			try:
+				print('\033[95m Decoding: ' + dec[1] + '\033[0m', end='\r')
+				dec[0]()
+			except:
+				pass
+	print(' '.join([' ' for x in range(20)]), end='\r')
+
+
+if DLLS != []:
+	print("\033[94m>>>>>>>>>> Decoding data...\033[0m")
+	DECODE_ALL(DLLS)
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # REPORTING
 #
-print(">>>>>>>>>> Generating report:")
+print("\033[94m>>>>>>>>>> Generating report:\033[0m")
 
 file_handle = open(OUTPUT+SEP+'REPORT.html', 'w', encoding='UTF-8')
 
-report_t = '<!DOCTYPE html><html><head>\n<title>Andriller Report for %s</title>\n<style>body,td,tr {font-family: Vernada, Arial, sans-serif; font-size: 12px;}</style></head><body>\n<p align="center"><i># This report was generated using Andriller version %s on %s #</i></p><h3 align="center">[Andriller Report] %s %s | %s</h3>\n<table border="1" cellpadding=2 cellspacing="0" align="center">\n<tr bgcolor="#72A0C1"><th>Type</th><th>Data</th></tr>\n' % (str(IMEI), PANDRILLER_VERSION, str(LOCAL_TIME), DEVICE_MANUF, str(DEVICE_MODEL), str(IMEI))
+report_t = '<!DOCTYPE html><html><head>\n<title>Andriller Report for %s</title>\n<style>body,td,tr {font-family: Vernada, Arial, sans-serif; font-size: 12px;}</style></head><body>\n<p align="center"><i># This report was generated using Andriller version %s on %s #</i></p><h3 align="center">[Andriller Report] %s %s | %s</h3>\n<table border="1" cellpadding=2 cellspacing="0" align="center">\n<tr bgcolor="#72A0C1"><th>Type</th><th>Data</th></tr>\n' % (str(IMEI), ANDRILLER_VERSION, str(LOCAL_TIME), DEVICE_MANUF, str(DEVICE_MODEL), str(IMEI))
 
 file_handle.write(report_t)
 
@@ -682,5 +749,5 @@ for torep in REPORT:
 file_handle.write(REP_FOOTER)
 file_handle.close()
 
-# Print generated report:
-print(os.getcwd()+SEP+OUTPUT+'REPORT.html')
+# Print generated report path:
+print('\033[92m'+os.getcwd()+SEP+OUTPUT+'REPORT.html\033[0m')
